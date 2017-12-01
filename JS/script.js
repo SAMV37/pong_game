@@ -1,8 +1,61 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-canvas.height = window.innerHeight - 10;
-canvas.width = window.innerWidth - 10;
+let i = 0;
+
+let player_count = 2;
+let computer_difficulty = 1;
+
+const one_player_button = document.getElementById('one_player');
+const two_player_button = document.getElementById('two_player');
+const dif_1 = document.getElementById('dif_1');
+const dif_2 = document.getElementById('dif_2');
+const dif_3 = document.getElementById('dif_3');
+
+dif_1.style.visibility = 'hidden';
+dif_2.style.visibility = 'hidden';
+dif_3.style.visibility = 'hidden';
+
+one_player_button.onclick = function(){
+  player_count = 1;
+  player1.score = 0;
+  player2.score = 0;
+  i = 0;
+    dif_1.style.visibility = 'visible';
+    dif_2.style.visibility = 'visible';
+    dif_3.style.visibility = 'visible';
+};
+
+two_player_button.onclick = function(){
+    player_count = 2;
+    player1.score = 0;
+    player2.score = 0;
+    i = 0;
+    dif_1.style.visibility = 'hidden';
+    dif_2.style.visibility = 'hidden';
+    dif_3.style.visibility = 'hidden';
+};
+
+dif_1.onclick = function(){
+    player1.score = 0;
+    player2.score = 0;
+    i = 0;
+    computer_difficulty = 1;
+};
+
+dif_2.onclick = function(){
+    player1.score = 0;
+    player2.score = 0;
+    i = 0;
+    computer_difficulty = 2;
+};
+
+dif_3.onclick = function(){
+    player1.score = 0;
+    player2.score = 0;
+    i = 0;
+    computer_difficulty = 3;
+};
 
 const players = [
   player1 = {
@@ -22,6 +75,7 @@ const players = [
         up: false,
         down: false,
         score: 0,
+        yDir: 1
     },
     ball = {
         x: 50,
@@ -40,8 +94,8 @@ function drawer(){
     ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
     ctx.fillRect(ball.x, ball.y, ball.width, ball.height);
     ctx.font = '40px Arial';
-    ctx.fillText(player1.score, 780, 100);
-    ctx.fillText(player2.score, 1000, 100);
+    ctx.fillText(player1.score, 580, 100);
+    ctx.fillText(player2.score, 820, 100);
     gic_drawer();
 }
 
@@ -58,6 +112,28 @@ function updater(){
         ball.yDir = 1;
     }
 
+    if(player_count === 1){
+        if(computer_difficulty === 1){
+            if(player2.y >= canvas.height - player2.height){
+                player2.yDir = -1;
+            }else if(player2.y <= 0){
+                player2.yDir = 1;
+            }
+
+            player2.y = player2.y + player2.yDir * 5;
+        }else if(computer_difficulty === 2){
+            if (player2.y >= ball.y) {
+                player2.yDir = -1;
+            } else if (player2.y < ball.y - player2.height) {
+                player2.yDir = 1;
+            }
+
+            player2.y = player2.y + player2.yDir * ball.speed ;
+        }else if(computer_difficulty === 3){
+            player2.y = ball.y - 50;
+        }
+    }
+
     lost_checker();
     keyboard_movement_detector();
     collisionChecker();
@@ -68,7 +144,8 @@ function updater(){
 function render(){
     drawer();
     updater();
-
+    i++;
+    ball_changer_speed();
 
     requestAnimationFrame(render);
 }
@@ -80,30 +157,34 @@ const w = 87;
 const s = 83;
 
 document.addEventListener('keydown', function(event) {
-    if(event.keyCode === upKey) {
-        player1.up = true;
-    }else if(event.keyCode === downKey) {
-        player1.down = true;
+    if(player_count === 2) {
+        if (event.keyCode === upKey) {
+            player2.up = true;
+        } else if (event.keyCode === downKey) {
+            player2.down = true;
+        }
     }
 
     if(event.keyCode === w) {
-        player2.up = true;
+        player1.up = true;
     }else if(event.keyCode === s) {
-        player2.down = true;
+        player1.down = true;
     }
 }, false);
 
 document.addEventListener('keyup', function(event) {
-    if(event.keyCode === upKey) {
-        player1.up = false;
-    }else if(event.keyCode === downKey) {
-        player1.down = false;
+    if(player_count === 2) {
+        if (event.keyCode === upKey) {
+            player2.up = false;
+        } else if (event.keyCode === downKey) {
+            player2.down = false;
+        }
     }
 
     if(event.keyCode === w) {
-        player2.up = false;
+        player1.up = false;
     }else if(event.keyCode === s) {
-        player2.down = false;
+        player1.down = false;
     }
 }, false);
 
@@ -152,12 +233,19 @@ function lost_checker(){
 }
 
 function restart(){
-    ball.x = 900;
-    ball.y = 450;
+    ball.x = 700;
+    ball.y = 350;
 }
 
 function gic_drawer(){
-    ctx.fillRect(900, 0, 2, canvas.height);
+    ctx.fillRect(700, 0, 2, canvas.height);
+}
+
+function ball_changer_speed(){
+    if(i === 700){
+        ball.speed ++;
+        i = 0;
+    }
 }
 
 
